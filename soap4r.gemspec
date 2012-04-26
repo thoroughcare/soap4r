@@ -4,11 +4,11 @@
 require 'rubygems'
 SPEC = Gem::Specification.new do |s|
   s.name = "mumboe-soap4r"
-  s.version = "1.5.8.4"
+  s.version = "1.5.8.5"
   s.date = "2009-12-08"
   s.author = "Scott Diedrick (modifier: swalterd)"
   s.email = "swalterd@gmail.com"
-  s.homepage = "http://dev.ctor.org/soap4r"
+  s.homepage = "https://github.com/mumboe/soap4r"
   s.platform = Gem::Platform::RUBY
   s.summary = "An implementation of SOAP 1.1 for Ruby."
   s.files = Dir.glob("{bin,lib,test}/**/*")
