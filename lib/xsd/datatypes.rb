@@ -507,8 +507,16 @@ require 'rational'
 require 'date'
 
 module XSDDateTimeImpl
-  DayInSec = 86400	# 24 * 60 * 60
-  DayInMicro = 86400_000_000
+  MicroSecondsInADay = 86400_000_000
+  SecondsInADay = 86400 # 24 * 60 * 60
+  if (RUBY_VERSION >= "1.9.0")
+    #1.9 reports differently for DateTime#sec_fraction from 1.8
+    DayInSec = 1
+    DayInMicro = 1000000
+  else
+    DayInSec = SecondsInADay 
+    DayInMicro = MicroSecondsInADay
+  end
 
   def to_obj(klass)
     if klass == Time
@@ -586,8 +594,8 @@ module XSDDateTimeImpl
     elsif t.is_a?(Time)
       jd = DateTime.civil_to_jd(t.year, t.mon, t.mday, DateTime::ITALY)
       fr = DateTime.time_to_day_fraction(t.hour, t.min, [t.sec, 59].min) +
-        t.usec.to_r / DayInMicro
-      of = t.utc_offset.to_r / DayInSec
+        t.usec.to_r / MicroSecondsInADay
+      of = t.utc_offset.to_r / SecondsInADay
       DateTime.new0(DateTime.jd_to_ajd(jd, fr, of), of, DateTime::ITALY)
     else
       screen_data_str(t)
@@ -652,10 +660,9 @@ private
       year, @data.mon, @data.mday, @data.hour, @data.min, @data.sec)
     if @data.sec_fraction.nonzero?
       if @secfrac
-  	s << ".#{ @secfrac }"
+  	    s << ".#{ @secfrac }"
       else
-	s << sprintf("%.16f",
-          @data.sec_fraction.to_f).sub(/^0/, '').sub(/0*$/, '')
+        s << sprintf("%.16f", (@data.sec_fraction * DayInSec).to_f).sub(/^0/, '').sub(/0*$/, '')
       end
     end
     add_tz(s)
@@ -702,10 +709,9 @@ private
     s = format('%02d:%02d:%02d', @data.hour, @data.min, @data.sec)
     if @data.sec_fraction.nonzero?
       if @secfrac
-  	s << ".#{ @secfrac }"
+  	    s << ".#{ @secfrac }"
       else
-	s << sprintf("%.16f",
-          @data.sec_fraction.to_f).sub(/^0/, '').sub(/0*$/, '')
+	      s << sprintf("%.16f", (@data.sec_fraction * DayInSec).to_f).sub(/^0/, '').sub(/0*$/, '')
       end
     end
     add_tz(s)
