@@ -251,7 +251,7 @@ module Mapping
 
   def self.obj2element(obj)
     name = namespace = nil
-    ivars = obj.instance_variables
+    ivars = obj.instance_variables.collect{|t| t.to_s}
     if ivars.include?('@schema_type')
       name = obj.instance_variable_get('@schema_type')
     end
@@ -286,7 +286,7 @@ module Mapping
     else
       rs = {}
       obj.instance_variables.each do |ele|
-        rs[ele.sub(/^@/, '')] = obj.instance_variable_get(ele)
+        rs[ele.to_s.sub(/^@/, '')] = obj.instance_variable_get(ele)
       end
       rs
     end
@@ -311,7 +311,7 @@ module Mapping
       if obj.respond_to?(attr_name)
         return obj.__send__(attr_name)
       end
-      iv = obj.instance_variables
+      iv = obj.instance_variables.collect{|t| t.to_s}
       name = Mapping.safevarname(attr_name)
       if iv.include?("@#{name}")
         return obj.instance_variable_get("@#{name}")
